@@ -34,4 +34,13 @@ public class DataExchange {
 		// TODO Auto-generated method stub
 		return CMD;
 	}
+	private long startTime; // Variable to store lap start time
+
+    public void startTimer() {
+        startTime = System.currentTimeMillis(); // Record lap start time
+    }
+
+    public long stopTimer() {
+        return System.currentTimeMillis() - startTime; // Calculate lap time
+    }
 }
