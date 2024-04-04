@@ -1,12 +1,12 @@
-// Class ObstacleDetector
+// ObstacleDetector class
 package t22LineFollower;
 
-import lejos.hardware.motor.Motor;
 import lejos.robotics.SampleProvider;
 
 public class ObstacleDetector extends Thread {
     private DataExchange dataExchange;
-    private final float obstacleDistanceThreshold = 0.1f; // Distance threshold to detect obstacles
+    private final float obstacleDistanceThreshold = 0.1f;
+    private boolean initialObstacleDetected = false; // Flag to track initial obstacle detection
 
     public ObstacleDetector(DataExchange dataExchange) {
         this.dataExchange = dataExchange;
@@ -22,15 +22,18 @@ public class ObstacleDetector extends Thread {
             float distance = ultrasonicSample[0];
 
             if (distance <= obstacleDistanceThreshold) {
-                // Obstacle detected, notify DataExchange
-                dataExchange.setObstacleDetected(true);
+                if (!initialObstacleDetected) {
+                    dataExchange.setObstacleDetected(true);
+                    initialObstacleDetected = true; // Set the flag for initial detection
+                }
             } else {
-                // No obstacle detected
-                dataExchange.setObstacleDetected(false);
+                if (initialObstacleDetected) {
+                    dataExchange.setObstacleDetected(false);
+                    initialObstacleDetected = false; // Clear the flag for initial detection
+                }
             }
             
             try {
-                // Wait for a short duration before checking again
                 Thread.sleep(100);
             } catch (InterruptedException e) {
                 e.printStackTrace();
