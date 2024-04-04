@@ -46,6 +46,9 @@ public class LineFollower extends Thread {
                     avoidObstacle();
                     // After avoiding obstacle, resume line following
                 }
+            } else if (dataExchange.getCMD() == 2) {
+                dataExchange.setCMD(1); // Reset command to continue line following
+                // Increment lap counter or perform any necessary actions
             } else {
                 Motor.B.stop();
                 Motor.A.stop();
@@ -63,19 +66,5 @@ public class LineFollower extends Thread {
         Delay.msDelay(500); 
         Motor.B.forward();
         Motor.A.forward();
-         /*  // Turn left
-        Motor.A.backward();
-        Motor.B.forward();
-        Delay.msDelay(700);
-        Motor.B.forward();
-        Motor.A.forward();
-        Motor.A.backward();
-        Motor.B.forward();
-        Delay.msDelay(700);
-        Motor.B.forward();
-        Motor.A.forward();
-        Motor.B.forward();
-        Motor.A.forward();*/
     }
-
 }
