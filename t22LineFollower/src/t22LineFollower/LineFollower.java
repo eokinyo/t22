@@ -1,4 +1,4 @@
-// Class LineFollower
+// LineFollower class (updated)
 package t22LineFollower;
 
 import lejos.hardware.motor.Motor;
@@ -59,12 +59,41 @@ public class LineFollower extends Thread {
     private void avoidObstacle() {
         // Implement obstacle avoidance logic here
         // For example, turn the robot to avoid the obstacle
+    	/*Motor.B.stop();
+        Motor.A.stop();
+    	Motor.A.setSpeed(250);
+        Motor.B.setSpeed(50);*/
         Motor.A.forward(); // Turn left
         Motor.B.backward();
         // Adjust motor speeds based on your robot's design
         // Wait for the robot to turn sufficiently to avoid the obstacle
-        Delay.msDelay(500); 
+        Delay.msDelay(300); 
+     //   Motor.B.stop();
+       // Motor.A.stop();
+        Motor.A.setSpeed(150);
+        Motor.B.setSpeed(150);
         Motor.B.forward();
         Motor.A.forward();
+        Delay.msDelay(2200);
+        Motor.B.forward(); // Turn right
+        Motor.A.backward();
+        Delay.msDelay(500); 
+        Motor.A.setSpeed(150);
+        Motor.B.setSpeed(150);
+        Motor.B.forward();
+        Motor.A.forward();
+        Delay.msDelay(2400);
+        Motor.B.forward(); // Turn right
+        Motor.A.backward();
+        Delay.msDelay(500); 
+        Motor.A.setSpeed(150);
+        Motor.B.setSpeed(150);
+        Motor.B.forward();
+        Motor.A.forward();
+        Delay.msDelay(1600);
+        Motor.A.forward(); // Turn left
+        Motor.B.backward();
+        Delay.msDelay(300); 
+        
     }
 }
