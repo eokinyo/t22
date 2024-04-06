@@ -45,31 +45,26 @@ public class LineFollower extends Thread {
                     // Avoid the obstacle
                     avoidObstacle();
                     // After avoiding obstacle, resume line following
+                    dataExchange.setCMD(2); // Send command to resume line following
                 }
             } else if (dataExchange.getCMD() == 2) {
                 dataExchange.setCMD(1); // Reset command to continue line following
                 // Increment lap counter or perform any necessary actions
-            } else {
+            } else if (dataExchange.getCMD() == 3) {
+                // Stop the robot
                 Motor.B.stop();
                 Motor.A.stop();
             }
         }
     }
-
     private void avoidObstacle() {
         // Implement obstacle avoidance logic here
         // For example, turn the robot to avoid the obstacle
-    	/*Motor.B.stop();
-        Motor.A.stop();
-    	Motor.A.setSpeed(250);
-        Motor.B.setSpeed(50);*/
         Motor.A.forward(); // Turn left
         Motor.B.backward();
         // Adjust motor speeds based on your robot's design
         // Wait for the robot to turn sufficiently to avoid the obstacle
         Delay.msDelay(300); 
-     //   Motor.B.stop();
-       // Motor.A.stop();
         Motor.A.setSpeed(150);
         Motor.B.setSpeed(150);
         Motor.B.forward();
