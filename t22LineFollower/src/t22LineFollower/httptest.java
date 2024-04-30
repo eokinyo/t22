@@ -31,13 +31,9 @@ public class httptest {
             if (responseCode != HttpURLConnection.HTTP_OK) {
                 throw new IOException("HTTP request failed with response code " + responseCode);
             }
-            
-            // Read the input stream from the connection
             try (InputStream is = conn.getInputStream()) {
                 InputStreamReader isr = new InputStreamReader(is);
                 br = new BufferedReader(isr);
-                
-                // Read the response line by line and build the response string
                 String line;
                 while ((line = br.readLine()) != null) {
                     response.append(line);
@@ -48,7 +44,6 @@ public class httptest {
         } catch (IOException e) {
             System.err.println("Error reading from URL: " + e.getMessage());
         } finally {
-            // Clean up resources
             try {
                 if (br != null) br.close();
             } catch (IOException e) {
@@ -58,10 +53,6 @@ public class httptest {
                 conn.disconnect();
             }
         }
-        
-        // Return the response as a string
         return response.toString();
     }
-
-    // Optionally, you can add more methods for specific purposes like parsing JSON responses if needed.
 }
