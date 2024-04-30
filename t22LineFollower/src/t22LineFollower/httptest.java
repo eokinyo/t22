@@ -1,0 +1,61 @@
+package t22LineFollower;
+
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
+
+
+//import javax.ws.rs.client.Client;
+//import javax.ws.rs.client.ClientBuilder;
+//import javax.ws.rs.client.Entity;
+//import javax.ws.rs.client.Invocation.Builder;
+//import javax.ws.rs.client.WebTarget;
+//import javax.ws.rs.core.MediaType;
+
+import lejos.hardware.Button;
+public class httptest {
+
+	@SuppressWarnings("deprecation")
+	public static void main(String[] args) {
+		
+        System.out.println("Read some text from URL\n");
+        System.out.println("Press any key to start");
+        
+        Button.waitForAnyPress();
+
+        URL url = null;
+  		HttpURLConnection conn = null;
+  		InputStreamReader isr = null;
+  		BufferedReader br=null;
+
+  		String s=null;
+		try {
+			url = new URL("http://127.0.0.1:8080");
+			conn = (HttpURLConnection)url.openConnection();
+  			System.out.println(conn.toString()); //Tulostaa vain URLin
+			InputStream is=null;
+			try {
+				is=conn.getInputStream();
+			}
+			catch (Exception e) {
+	  			System.out.println("Exception conn.getInputSteam()");
+	  			e.printStackTrace();
+	            System.out.println("Cannot get InputStream!");
+			}
+			isr = new InputStreamReader(is);
+      		br=new BufferedReader(isr);
+			while ((s=br.readLine())!=null){
+				System.out.println(s);
+			}
+		}
+  		catch(Exception e) {
+  			e.printStackTrace();
+            System.out.println("Some problem!");
+  		}
+        System.out.println("Press any key to FINISH");
+        Button.waitForAnyPress();
+	}
+
+}

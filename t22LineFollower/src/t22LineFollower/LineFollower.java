@@ -5,7 +5,13 @@ import lejos.hardware.motor.Motor;
 import lejos.hardware.port.SensorPort;
 import lejos.hardware.sensor.EV3ColorSensor;
 import lejos.robotics.SampleProvider;
-import lejos.utility.Delay;
+import lejos.utility.Delay;/*
+import javax.ws.rs.client.Client;
+import javax.ws.rs.client.ClientBuilder;
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.client.Invocation.Builder;
+import javax.ws.rs.client.WebTarget;
+import javax.ws.rs.core.MediaType;*/
 
 //Just a comment to see how the codeowners file works
 
@@ -59,6 +65,17 @@ public class LineFollower extends Thread {
             }
         }
     }
+    /*private int getSpeedFromWebsite() {
+        // Code to fetch speed value from website
+        // You need to implement this part using HTTP requests to your website
+        // Here's a basic example using JAX-RS client:
+        Client client = ClientBuilder.newClient();
+        WebTarget target = client.target("http://127.0.0.1:8080/rest/t22RestfulProject/addrobot/speed");
+        Builder request = target.request();
+        String speedStr = request.get(String.class);
+        int speed = Integer.parseInt(speedStr);
+        return speed;
+    }*/
     private void avoidObstacle() {
         // Implement obstacle avoidance logic here
         // For example, turn the robot to avoid the obstacle
