@@ -1,67 +1,106 @@
-package t22LineFollower;
 
+package t22LineFollower;
+ 
 import java.io.BufferedReader;
+
 import java.io.IOException;
+
 import java.io.InputStream;
+
 import java.io.InputStreamReader;
+
 import java.net.HttpURLConnection;
+
 import java.net.MalformedURLException;
+
 import java.net.URL;
 
-public class httptest {
+import lejos.hardware.Button;
 
-    // Method to read data from a given URL
-    public String readDataFromUrl(String urlString) {
-        URL url;
-        HttpURLConnection conn = null;
-        BufferedReader br = null;
-        StringBuilder response = new StringBuilder();
-        
+import lejos.hardware.Sound;
+ 
+public class httptest {
+ 
+    public static void main(String[] args) {
+
+        System.out.println("Read some text from URL");
+
+        System.out.println("Press any key to start");
+
+        Button.waitForAnyPress();
+ 
+        // The URL to connect to the server's REST API
+
+        String urlString = "http://172.30.160.1:8080/rest/t22RestfulProject/addrobotbyget";
+ 
+        // Try to open the connection and read from the URL
+
         try {
-            // Create a URL object using the provided URL string
-            url = new URL("128 database file adress");
-            
-            // Open a connection to the URL
-            conn = (HttpURLConnection) url.openConnection();
-            conn.setRequestMethod("GET"); // Use GET method
-            conn.setRequestProperty("Accept", "application/json"); // Expecting JSON response
-            
-            // Check for non-200 response codes
-            int responseCode = conn.getResponseCode();
-            if (responseCode != HttpURLConnection.HTTP_OK) {
-                throw new IOException("HTTP request failed with response code " + responseCode);
-            }
-            
-            // Read the input stream from the connection
-            try (InputStream is = conn.getInputStream()) {
-                InputStreamReader isr = new InputStreamReader(is);
-                br = new BufferedReader(isr);
-                
-                // Read the response line by line and build the response string
-                String line;
-                while ((line = br.readLine()) != null) {
-                    response.append(line);
+
+            URL url = new URL(urlString);
+
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+ 
+            // Set request method and timeouts
+
+            connection.setRequestMethod("GET");
+
+            connection.setConnectTimeout(5000); // Connection timeout (milliseconds)
+
+            connection.setReadTimeout(5000); // Read timeout (milliseconds)
+ 
+            // Check response code
+
+            int responseCode = connection.getResponseCode();
+
+            System.out.println("Response Code: " + responseCode);
+ 
+            // Check if the response code is OK (200)
+
+            if (responseCode == HttpURLConnection.HTTP_OK) {
+
+                try (InputStream inputStream = connection.getInputStream();
+
+                     BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream))) {
+
+                    String line;
+
+                    while ((line = reader.readLine()) != null) {
+
+                        System.out.println(line);
+
+                    }
+
                 }
+
+            } else {
+
+                System.out.println("Failed to retrieve data from URL. Response code: " + responseCode);
+
             }
+ 
+            // Close the connection
+
+            connection.disconnect();
+ 
         } catch (MalformedURLException e) {
-            System.err.println("Malformed URL: " + e.getMessage());
+
+            System.out.println("Invalid URL format: " + urlString);
+
+            e.printStackTrace();
+
         } catch (IOException e) {
-            System.err.println("Error reading from URL: " + e.getMessage());
-        } finally {
-            // Clean up resources
-            try {
-                if (br != null) br.close();
-            } catch (IOException e) {
-                System.err.println("Error closing buffered reader: " + e.getMessage());
-            }
-            if (conn != null) {
-                conn.disconnect();
-            }
+
+            System.out.println("Error occurred while trying to connect to the URL: " + urlString);
+
+            e.printStackTrace();
+
         }
-        
-        // Return the response as a string
-        return response.toString();
+ 
+        System.out.println("Press any key to finish.");
+
+        Button.waitForAnyPress();
+
     }
 
-    // Optionally, you can add more methods for specific purposes like parsing JSON responses if needed.
 }
