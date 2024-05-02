@@ -1,4 +1,11 @@
+// LineFollower class (updated)
 package t22LineFollower;
+
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
 
 import lejos.hardware.motor.Motor;
 import lejos.hardware.port.SensorPort;
@@ -6,57 +13,54 @@ import lejos.hardware.sensor.EV3ColorSensor;
 import lejos.robotics.SampleProvider;
 import lejos.utility.Delay;
 
+//Just a comment to see how the codeowners file works
+
 public class LineFollower extends Thread {
     private DataExchange dataExchange;
     private EV3ColorSensor colorSensor;
-    private final double colorPattern = 0.27; // Threshold for line detection
+    private final double colorPattern = 0.27;
+    private int speed = 260; //Default value for speed
+    private double angle = 2; //Default value for angle
 
-    // Constructor to initialize data exchange and color sensor
     public LineFollower(DataExchange dataExchange) {
         this.dataExchange = dataExchange;
-        this.colorSensor = new EV3ColorSensor(SensorPort.S3);
+        colorSensor = new EV3ColorSensor(SensorPort.S3);
     }
-
-    // Main run method for line following behavior
+    
     @Override
     public void run() {
-        // Sample provider for the color sensor
         final SampleProvider sp = colorSensor.getRedMode();
-        
-        // Create an instance of httptest to read data from the server
-        httptest httpTest = new httptest();
-
-        // Infinite loop for line following behavior
         while (true) {
-            // Check the current command
+        	getData();
             if (dataExchange.getCMD() == 1) {
-                // Fetch the sample from the color sensor
                 float[] sample = new float[sp.sampleSize()];
                 sp.fetchSample(sample, 0);
 
-                // Fetch data from the server (provide the correct URL)
-                String urlString = "http://<server-ip>:<port>/<endpoint>";
-                String jsonResponse = httpTest.readDataFromUrl(urlString);
-
-                // Parse the response for speed adjustment (without using org.json)
-                double speed = extractSpeedFromResponse(jsonResponse);
-
-                // Check for obstacle detection
                 if (!dataExchange.getObstacleDetected()) {
-                    // Continue line following
-                    adjustMotorSpeedsForLineFollowing(sample[0], speed);
+                    // No obstacle detected, continue line following
+                    if (sample[0] < colorPattern) {
+                        Motor.B.setSpeed((int) (speed/angle));
+                        Motor.A.setSpeed(speed);
+                        Motor.B.forward();
+                        Motor.A.forward();
+                    } else {
+                        Motor.B.setSpeed(speed);
+                        Motor.A.setSpeed((int) (speed/angle));
+                        Motor.B.forward();
+                        Motor.A.forward();
+                    }
                 } else {
                     // Obstacle detected, stop the robot
                     Motor.B.stop();
                     Motor.A.stop();
                     // Avoid the obstacle
                     avoidObstacle();
-                    // After avoiding the obstacle, resume line following
+                    // After avoiding obstacle, resume line following
                     dataExchange.setCMD(2); // Send command to resume line following
                 }
             } else if (dataExchange.getCMD() == 2) {
-                // Reset command to continue line following
-                dataExchange.setCMD(1);
+                dataExchange.setCMD(1); // Reset command to continue line following
+                // Increment lap counter or perform any necessary actions
             } else if (dataExchange.getCMD() == 3) {
                 // Stop the robot
                 Motor.B.stop();
@@ -64,82 +68,70 @@ public class LineFollower extends Thread {
             }
         }
     }
+    public void getData() {
+    	URL url = null;
+  		HttpURLConnection conn = null;
+  		InputStreamReader isr = null;
+  		BufferedReader br=null;
 
-    // Method to adjust motor speeds for line following based on color sample and speed
-    private void adjustMotorSpeedsForLineFollowing(float colorSample, double speed) {
-        if (colorSample < colorPattern) {
-            // Turn left if sample is below color pattern threshold
-            Motor.B.setSpeed((int)(speed / 2)); // Slow down Motor B
-            Motor.A.setSpeed((int)speed); // Keep Motor A at full speed
-            Motor.B.forward();
-            Motor.A.forward();
-        } else {
-            // Turn right if sample is above color pattern threshold
-            Motor.B.setSpeed((int)speed); // Keep Motor B at full speed
-            Motor.A.setSpeed((int)(speed / 2)); // Slow down Motor A
-            Motor.B.forward();
-            Motor.A.forward();
-        }
+  		String s=null;
+		try {
+			url = new URL("http://192.168.101.218:8080/rest/t22RestfulProject/readrobots");
+			conn = (HttpURLConnection)url.openConnection();
+  			//System.out.println(conn.toString()); 
+			InputStream is=null;
+			try {
+				is=conn.getInputStream();
+			}
+			catch (Exception e) {
+	  			System.out.println("Exception conn.getInputSteam()");
+	  			e.printStackTrace();
+	            System.out.println("Cannot get InputStream!");
+			}
+			isr = new InputStreamReader(is);
+      		br=new BufferedReader(isr);
+			String data = br.readLine();
+			String values[]=data.split("#");
+			speed = (int)Double.parseDouble(values[1]);
+			angle = (int)Double.parseDouble(values[3]);
+		}
+  		catch(Exception e) {
+  			e.printStackTrace();
+            System.out.println("Some problem!");
+  		}
     }
-
-    // Method to extract speed from the server response (without using org.json)
-    private double extractSpeedFromResponse(String response) {
-        // Look for the speed value in the response (e.g., "speed":150)
-        int startIndex = response.indexOf("\"speed\":") + 8;
-        int endIndex = response.indexOf(',', startIndex);
-        if (endIndex == -1) {
-            endIndex = response.indexOf('}', startIndex);
-        }
-        
-        // Extract the speed value and convert it to a double
-        String speedStr = response.substring(startIndex, endIndex);
-        return Double.parseDouble(speedStr);
-    }
-
-    // Method to avoid obstacles
     private void avoidObstacle() {
         // Implement obstacle avoidance logic here
-        // For example, you can turn the robot to avoid the obstacle
-
-        // Turn left
-        Motor.A.forward();
+        // For example, turn the robot to avoid the obstacle
+        Motor.A.forward(); // Turn left
         Motor.B.backward();
-        Delay.msDelay(300);
-        
-        // Move forward
+        // Adjust motor speeds based on your robot's design
+        // Wait for the robot to turn sufficiently to avoid the obstacle
+        Delay.msDelay(300); 
         Motor.A.setSpeed(150);
         Motor.B.setSpeed(150);
         Motor.B.forward();
         Motor.A.forward();
         Delay.msDelay(2200);
-        
-        // Turn right
-        Motor.B.forward();
+        Motor.B.forward(); // Turn right
         Motor.A.backward();
-        Delay.msDelay(500);
-        
-        // Move forward
+        Delay.msDelay(500); 
         Motor.A.setSpeed(150);
         Motor.B.setSpeed(150);
         Motor.B.forward();
         Motor.A.forward();
         Delay.msDelay(2400);
-        
-        // Turn right
-        Motor.B.forward();
+        Motor.B.forward(); // Turn right
         Motor.A.backward();
-        Delay.msDelay(500);
-        
-        // Move forward
+        Delay.msDelay(500); 
         Motor.A.setSpeed(150);
         Motor.B.setSpeed(150);
         Motor.B.forward();
         Motor.A.forward();
         Delay.msDelay(1600);
-        
-        // Turn left
-        Motor.A.forward();
+        Motor.A.forward(); // Turn left
         Motor.B.backward();
-        Delay.msDelay(300);
+        Delay.msDelay(300); 
+        
     }
 }
