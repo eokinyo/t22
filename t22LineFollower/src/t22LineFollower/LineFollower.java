@@ -11,13 +11,7 @@ import lejos.hardware.motor.Motor;
 import lejos.hardware.port.SensorPort;
 import lejos.hardware.sensor.EV3ColorSensor;
 import lejos.robotics.SampleProvider;
-import lejos.utility.Delay;/*
-import javax.ws.rs.client.Client;
-import javax.ws.rs.client.ClientBuilder;
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.client.Invocation.Builder;
-import javax.ws.rs.client.WebTarget;
-import javax.ws.rs.core.MediaType;*/
+import lejos.utility.Delay;
 
 //Just a comment to see how the codeowners file works
 
@@ -25,7 +19,8 @@ public class LineFollower extends Thread {
     private DataExchange dataExchange;
     private EV3ColorSensor colorSensor;
     private final double colorPattern = 0.27;
-    private int speed = 260;
+    private int speed = 260; //Default value for speed
+    private double angle = 2; //Default value for angle
 
     public LineFollower(DataExchange dataExchange) {
         this.dataExchange = dataExchange;
@@ -44,13 +39,13 @@ public class LineFollower extends Thread {
                 if (!dataExchange.getObstacleDetected()) {
                     // No obstacle detected, continue line following
                     if (sample[0] < colorPattern) {
-                        Motor.B.setSpeed(speed/2);
+                        Motor.B.setSpeed((int) (speed/angle));
                         Motor.A.setSpeed(speed);
                         Motor.B.forward();
                         Motor.A.forward();
                     } else {
                         Motor.B.setSpeed(speed);
-                        Motor.A.setSpeed(speed/2);
+                        Motor.A.setSpeed((int) (speed/angle));
                         Motor.B.forward();
                         Motor.A.forward();
                     }
@@ -73,17 +68,6 @@ public class LineFollower extends Thread {
             }
         }
     }
-    /*private int getSpeedFromWebsite() {
-        // Code to fetch speed value from website
-        // You need to implement this part using HTTP requests to your website
-        // Here's a basic example using JAX-RS client:
-        Client client = ClientBuilder.newClient();
-        WebTarget target = client.target("http://127.0.0.1:8080/rest/t22RestfulProject/addrobot/speed");
-        Builder request = target.request();
-        String speedStr = request.get(String.class);
-        int speed = Integer.parseInt(speedStr);
-        return speed;
-    }*/
     public void getData() {
     	URL url = null;
   		HttpURLConnection conn = null;
@@ -109,6 +93,7 @@ public class LineFollower extends Thread {
 			String data = br.readLine();
 			String values[]=data.split("#");
 			speed = (int)Double.parseDouble(values[1]);
+			angle = (int)Double.parseDouble(values[3]);
 		}
   		catch(Exception e) {
   			e.printStackTrace();

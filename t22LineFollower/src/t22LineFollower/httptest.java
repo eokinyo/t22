@@ -32,7 +32,6 @@ public class httptest {
 		
         System.out.println("Read some text from URL\n");
         System.out.println("Press any key to start");
-        
         Button.waitForAnyPress();
 
         URL url = null;
