@@ -96,7 +96,7 @@ public class LineFollower extends Thread {
 			speed = (int)Double.parseDouble(values[1]);
 			angle = (int)Double.parseDouble(values[3]);
 			color = Double.parseDouble(values[4]);
-		}//
+		}
   		catch(Exception e) {
   			e.printStackTrace();
             System.out.println("Some problem!");
