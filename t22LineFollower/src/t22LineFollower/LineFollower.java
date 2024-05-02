@@ -18,7 +18,8 @@ import lejos.utility.Delay;
 public class LineFollower extends Thread {
     private DataExchange dataExchange;
     private EV3ColorSensor colorSensor;
-    private final double colorPattern = 0.27;
+    private double color = 0.27; //Default value for color
+    private final double colorPattern = color;
     private int speed = 260; //Default value for speed
     private double angle = 2; //Default value for angle
 
@@ -94,6 +95,7 @@ public class LineFollower extends Thread {
 			String values[]=data.split("#");
 			speed = (int)Double.parseDouble(values[1]);
 			angle = (int)Double.parseDouble(values[3]);
+			color = Double.parseDouble(values[4]);
 		}
   		catch(Exception e) {
   			e.printStackTrace();
